@@ -1,0 +1,11 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: k8s-spring-configmap
+data:
+  application.properties: |
+    server.shutdown=graceful
+    management.endpoints.web.exposure.include=health,env,loggers,metrics,info,configprops,location
+    management.endpoint.health.probes.enabled=true
+    datacenter.name=k8s-dc-a
+    dns.suffix=.dc-a.company.com

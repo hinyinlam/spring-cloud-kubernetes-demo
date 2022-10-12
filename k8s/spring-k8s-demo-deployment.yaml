@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: spring-k8s-demo
+  name: spring-k8s-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spring-k8s-demo
+  template:
+    metadata:
+      labels:
+        app: spring-k8s-demo
+    spec:
+      containers:
+      - image: spring-k8s-demo:0.0.1-SNAPSHOT
+        name: spring-k8s-demo
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "2000m"
+          limits:
+            memory: "3Gi"
+            cpu: "3000m"
+        ports:
+          - containerPort: 8080
+            name: my-spring-port
+        imagePullPolicy: Always #Don't use "Always" in production
+        readinessProbe:
+          httpGet:
+            port: my-spring-port
+            path: /actuator/health/readiness
+        livenessProbe:
+          httpGet:
+            port: my-spring-port
+            path: /actuator/health/liveness
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: spring-lb
+spec:
+  selector:
+    app: spring-k8s-demo
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: my-spring-port
